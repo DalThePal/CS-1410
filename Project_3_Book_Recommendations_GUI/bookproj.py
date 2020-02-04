@@ -1,5 +1,5 @@
 from breezypythongui import EasyFrame
-
+import tkinter as tk
 
 class GUI(EasyFrame):
 
@@ -13,8 +13,13 @@ class GUI(EasyFrame):
         self.addButton(text="Report", row=0, column=2, command=self.viewReport)
 
     def viewFriends(self):
-        self.friendsButton["state"] = "disabled"
-        FriendsGUI().mainloop()
+        self.num_friends = self.prompterBox(title="Friends", promptString="# of Friends:", inputText="2")
+        self.name = self.prompterBox(title="name", promptString="name:")
+        self.friends = friends(self.name, self.num_friends)
+        friends_string = ""
+        for friend in self.friends:
+            friends_string += (friend + '\n')
+        self.messageBox(title="Friends", message=friends_string)
 
     def viewRecommend(self):
         print('recommend')
@@ -54,19 +59,27 @@ def report():
 
 
 
-def recommend(name):
-    closest_friends = friends(name)
+def recommend(name, numFriends=2):
+    closest_friends = friends(name, numFriends=numFriends)
     ratings = get_ratings()
     books = get_books()
     
-    friend_one_ratings = ratings[closest_friends[0]]
-    friend_two_ratings = ratings[closest_friends[1]]
+    friend_ratings = {}
+    for friend in closest_friends:
+        friend_ratings[friend] = ratings[friend]
+    
     recommendee_ratings = ratings[name]
     
     recommended_books = []
     for i in range(0, len(books)):
-        if recommendee_ratings[i] == 0 and (friend_one_ratings[i] >= 3 or friend_two_ratings[i] >= 3):
-            recommended_books.append(books[i])
+        if recommendee_ratings[i] == 0:
+            book_ok = True
+            for friend in friend_ratings:
+                if friend[i] < 3:
+                    book_ok = False
+
+            if book_ok:
+                recommended_books.append(books[i])
     
     return recommended_books
 
@@ -74,7 +87,7 @@ def recommend(name):
 
 
 
-def friends(name):
+def friends(name, numFriends=2):
     ratings = get_ratings()
     recommendee = ratings.pop(name, None)
     friends = {}
@@ -87,8 +100,11 @@ def friends(name):
     for w in sorted(friends, key=friends.get, reverse=True):
         sorted_friends[w] = friends[w]
 
-    closest_friends = [list(sorted_friends.keys())[0], list(sorted_friends.keys())[1]]
+    closest_friends = []
+    for i in range(0, numFriends):
+        closest_friends.append(list(sorted_friends.keys()[i]))
     closest_friends.sort()
+
     return closest_friends
 
 
