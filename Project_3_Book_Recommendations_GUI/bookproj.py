@@ -11,33 +11,43 @@ class GUI(EasyFrame):
         self.friendsButton = self.addButton(text="Friends", row=0, column=0, command=self.viewFriends)
         self.addButton(text="Recommend", row=0, column=1, command=self.viewRecommend)
         self.addButton(text="Report", row=0, column=2, command=self.viewReport)
+        
+    def getReaderInfo(self):
+        self.num_friends = int(self.prompterBox(title="Friends", promptString="# of Friends:", inputText="2"))
+        self.name = self.prompterBox(title="name", promptString="name:").lower()
+        
+        if self.name not in get_ratings():
+            self.messageBox(title="error", message="Reader doesn't exist")
+            return
+
 
     def viewFriends(self):
-        self.num_friends = self.prompterBox(title="Friends", promptString="# of Friends:", inputText="2")
-        self.name = self.prompterBox(title="name", promptString="name:")
-        self.friends = friends(self.name, self.num_friends)
-        friends_string = ""
-        for friend in self.friends:
-            friends_string += (friend + '\n')
-        self.messageBox(title="Friends", message=friends_string)
+        self.getReaderInfo()
+        
+        friends_list = friends(self.name, self.num_friends)
+        
+        if not friends_list:
+            self.messageBox(title="error", message="Reader has no friends :(")
+        else:
+            friends_string = ""
+            for friend in friends_list:
+                friends_string += (friend + '\n')
+            self.messageBox(title="Friends", message=friends_string, height=25, width=30)
 
     def viewRecommend(self):
-        print('recommend')
+        self.getReaderInfo()
+        
+        recommendations = recommend(self.name, self.num_friends)
+        
+        recommend_string = ""
+        for book in recommendations:
+            recommend_string += (", ".join(book) + '\n')
+        self.messageBox(title="Recommendations", message=recommend_string, height=25, width=40)
+
 
     def viewReport(self):
-        print('report')
+        self.messageBox(title="Report", message=report(), width=75, height=50)
 
-
-class FriendsGUI(GUI):
-
-    def __init__(self):
-        GUI.__init__(self)
-        # EasyFrame.setTitle(self, "Friends")
-
-        self.addLabel(text="reader", row=0, column=0)
-        self.readerField = self.addTextField(text="", row=0, column=1)
-        self.addLabel(text="number of Friends", row=1, column=0)
-        self.friendField = self.addIntegerField(value=0, row=1, column=1)
 
 
 
@@ -67,20 +77,20 @@ def recommend(name, numFriends=2):
     friend_ratings = {}
     for friend in closest_friends:
         friend_ratings[friend] = ratings[friend]
-    
+
     recommendee_ratings = ratings[name]
     
     recommended_books = []
     for i in range(0, len(books)):
         if recommendee_ratings[i] == 0:
-            book_ok = True
+            book_ok = False
             for friend in friend_ratings:
-                if friend[i] < 3:
-                    book_ok = False
+                if friend_ratings[friend][i] >= 3:
+                    book_ok = True
 
             if book_ok:
                 recommended_books.append(books[i])
-    
+        
     return recommended_books
 
 
@@ -90,22 +100,26 @@ def recommend(name, numFriends=2):
 def friends(name, numFriends=2):
     ratings = get_ratings()
     recommendee = ratings.pop(name, None)
-    friends = {}
     
-    for person in ratings:
-        product = dot_product(recommendee, ratings[person])
-        friends[person] = product
+    if not recommendee:
+        return None
+    else:
+        friends = {}
         
-    sorted_friends = {}
-    for w in sorted(friends, key=friends.get, reverse=True):
-        sorted_friends[w] = friends[w]
+        for person in ratings:
+            product = dot_product(recommendee, ratings[person])
+            friends[person] = product
+            
+        sorted_friends = {}
+        for w in sorted(friends, key=friends.get, reverse=True):
+            sorted_friends[w] = friends[w]
 
-    closest_friends = []
-    for i in range(0, numFriends):
-        closest_friends.append(list(sorted_friends.keys()[i]))
-    closest_friends.sort()
+        closest_friends = []
+        for i in range(0, numFriends):
+            closest_friends.append(list(sorted_friends.keys())[i])
+        closest_friends.sort()
 
-    return closest_friends
+        return closest_friends
 
 
 
@@ -113,7 +127,6 @@ def friends(name, numFriends=2):
 
 def dot_product(recommendee, recommender):
     product = 0
-    
     for i in range(0, len(recommendee)):
         product += (recommendee[i] * recommender[i])
 
