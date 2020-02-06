@@ -1,5 +1,4 @@
-from breezypythongui import EasyFrame
-import tkinter as tk
+from breezypythongui import EasyFrame, EasyDialog
 
 class GUI(EasyFrame):
 
@@ -13,8 +12,9 @@ class GUI(EasyFrame):
         self.addButton(text="Report", row=0, column=2, command=self.viewReport)
         
     def getReaderInfo(self):
-        self.num_friends = int(self.prompterBox(title="Friends", promptString="# of Friends:", inputText="2"))
-        self.name = self.prompterBox(title="name", promptString="name:").lower()
+        self.dialog = Dialog(self, "Reader Info")
+        self.name = self.dialog.name
+        self.num_friends = self.dialog.nFriends
         
         if self.name not in get_ratings():
             self.messageBox(title="error", message="Reader doesn't exist")
@@ -49,7 +49,21 @@ class GUI(EasyFrame):
         self.messageBox(title="Report", message=report(), width=75, height=50)
 
 
-
+class Dialog(EasyDialog):
+    def __init__(self, parent, title):
+        EasyDialog.__init__(self, parent, title)
+    
+    def body(self, parent):
+        self.addLabel(master=parent, text="Name", row=0, column=0)
+        self.nameField = self.addTextField(master=parent, text="", row=0, column=1)
+        self.addLabel(master=parent, text="# of Friends", row=1, column=0)
+        self.nFriendsField = self.addIntegerField(master=parent, value=2, row=1, column=1)
+        
+    def apply(self):
+        self.name = self.nameField.getValue()
+        self.nFriends = int(self.nFriendsField.getValue())
+        
+        
 
 def report():
     ratings = get_ratings()
