@@ -7,6 +7,10 @@ class CoffeeMachine():
         self._selector  = Selector(self._cashBox)
         
     def oneAction(self):
+        print("______________________________________")
+        print("    PRODUCT LIST: all 35 cents, except bouillon (25 cents)")
+        print("    1=black, 2=white, 3=sweet, 4=white & sweet, 5=bouillon")
+        print("    Sample commands: insert 25, select 1")
         command = input(">>> Your command: ")
         command = command.split(" ")
         
@@ -52,8 +56,8 @@ class CoffeeMachine():
         
     def totalCash(self):
         return self._cashBox.total()
-        
-        
+    
+               
 class CashBox():
     def __init__(self):
         self._credit        = 0
