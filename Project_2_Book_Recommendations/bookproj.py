@@ -107,7 +107,7 @@ def swap_author_names_back(books):
     new_books = []
     for book in books:
         author = book[0].split()
-        author = author[1: -1] + author[0:1]
+        author = author[1:] + author[0:1]
         new_book = (" ".join(author), book[-1])
         new_books.append(new_book)
 
@@ -123,7 +123,7 @@ def get_books():
     books_file.close()
     
     books = [tuple(line.replace('\n', '').split(',')) for line in content]
-    books = swap_author_names(books)    
+    books = swap_author_names(books)  
     books.sort()
     books = swap_author_names_back(books)
     
