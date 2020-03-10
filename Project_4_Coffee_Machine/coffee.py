@@ -76,7 +76,7 @@ class CashBox():
         
     def deduct(self, amount):
         self._totalReceived += amount
-        self._credit -+ amount
+        self._credit -= amount
         self.returnCoins()
         
     def total(self):
@@ -109,11 +109,11 @@ class Selector():
 class Product():
     def __init__(self, name, price, recipe):
         self._name      = name
-        self._price     = price,
+        self._price     = price
         self._recipe    = recipe
         
     def getPrice(self):
-        return self._price[0]
+        return self._price
         
     def make(self):
         for item in self._recipe:
