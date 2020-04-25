@@ -1,6 +1,6 @@
 import requests
 from time import perf_counter
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 
 
 BASE_URL = "https://www.cia.gov/library/publications/resources/the-world-factbook/graphics/flags/large/"
@@ -37,7 +37,7 @@ def main():
     start = perf_counter()
     readFile()
 
-    with ProcessPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=5) as executor:
 
       for country in countries:
 
